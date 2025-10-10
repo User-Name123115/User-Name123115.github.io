@@ -1,0 +1,36 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Display Text</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: black;
+      color: white;
+      font-family: monospace;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #display {
+      white-space: normal;
+      padding: 20px;
+      max-width: 90%;
+      max-height: 90%;
+      overflow-wrap: break-word;
+      user-select: none;
+      cursor: default;
+    }
+  </style>
+</head>
+<body>
+  <div id="display">print("hello") This is a long line of code that will wrap inside the container properly without horizontal scrolling or cutoff.</div>
+</body>
+</html>
