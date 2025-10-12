@@ -1,9 +1,8 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Dexter List with Seasons</title>
+<title>Dexter</title>
 <style>
   html, body {
     margin: 0; padding: 0; height: 100%; background: #121212; color: #eee; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden;
@@ -93,7 +92,6 @@
     text-align: center; border-top: 1px solid #222; box-sizing: border-box; z-index: 10;
     font-style: italic;
   }
-  /* Scrollbar customization for modern browsers */
   main::-webkit-scrollbar {
     width: 8px;
   }
@@ -108,7 +106,7 @@
 </head>
 <body>
 <div id="particles-js"></div>
-<header>Dexter List with Seasons</header>
+<header>Dexter</header>
 <main id="mainContent">
   Loading...
 </main>
@@ -155,7 +153,6 @@
     header.className = 'season-header';
     header.textContent = seasonName;
 
-    // Arrow icon using CSS triangles
     const arrow = document.createElement('span');
     arrow.className = 'arrow';
     header.appendChild(arrow);
@@ -197,7 +194,6 @@
 
       mainContent.innerHTML = '';
 
-      // Confirm JSON is nested by seasons (all values are objects)
       const isNested = Object.values(data).every(value => typeof value === 'object' && value !== null);
 
       if (!isNested) {
