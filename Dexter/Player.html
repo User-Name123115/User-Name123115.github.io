@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Video Player</title>
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    color: white;
+    font-family: Arial, sans-serif;
+  }
+  header {
+    background: #cc0000;
+    padding: 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+  }
+  video {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 8px;
+    background: black;
+  }
+  .error {
+    color: #ff5555;
+    font-size: 1.2rem;
+  }
+</style>
+</head>
+<body>
+<header>Video Player</header>
+<main id="playerContainer">
+  Loading video...
+</main>
+
+<script>
+  function getVideoParam() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('video');
+  }
+
+  const playerContainer = document.getElementById('playerContainer');
+  const videoLink = getVideoParam();
+
+  if (!videoLink) {
+    playerContainer.innerHTML = '<div class="error">No video link provided.</div>';
+  } else {
+    // Create video element with controls and autoplay
+    const video = document.createElement('video');
+    video.src = videoLink;
+    video.controls = true;
+    video.autoplay = true;
+    video.style.maxWidth = '100%';
+    video.style.maxHeight = '100%';
+
+    playerContainer.innerHTML = '';
+    playerContainer.appendChild(video);
+  }
+</script>
+</body>
+</html>
