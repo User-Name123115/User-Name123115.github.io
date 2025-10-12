@@ -1,4 +1,4 @@
-(
-"Dexter" "Link Goes Here",
-"Crocodile" "Link Goes Here"
-)
+{
+  "Dexter": "Link Goes Here",
+  "Crocodile": "Link Goes Here"
+}
