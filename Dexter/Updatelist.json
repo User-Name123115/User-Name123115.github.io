@@ -1,5 +1,10 @@
 {
-  "Dexter": "https://example.com/dexter",
-  "Crocodile": "https://example.com/crocodile",
-  "test": "https://base44.app/api/apps/68eb084254249c3ca61321c7/files/public/68eb084254249c3ca61321c7/a880fc75f_HARLEMSHAKEPOOPSteezyGrossmanFreeDownloadBorrowandStrea.mp4"
+  "S1": {
+    "Dexter E1": "https://example.com/dexter",
+    "Crocodile E2": "https://example.com/crocodile"
+  },
+  "S2": {
+    "Episode 1": "url3",
+    "Episode 2": "url4"
+  }
 }
