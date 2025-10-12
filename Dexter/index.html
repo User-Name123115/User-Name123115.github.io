@@ -1,9 +1,8 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Simple Show List</title>
+<title>Dexter List</title>
 <style>
   html, body {
     margin: 0;
@@ -40,7 +39,7 @@
   }
   main {
     position: fixed;
-    top: 56px; /* height of header */
+    top: 56px;
     bottom: 0;
     width: 100%;
     overflow-y: auto;
@@ -89,18 +88,16 @@
 </head>
 <body>
 <div id="particles-js"></div>
-<header>My Show List</header>
+<header>Dexter List</header>
 <main>
   <ul id="showList" class="show-list">
-    <li>Loading shows...</li>
+    <li>Loading...</li>
   </ul>
 </main>
-<footer>Shows updated from JSON</footer>
+<footer>updated from a JSON file so i can add more if i need</footer>
 
-<!-- Load particles.js from CDN -->
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script>
-  // Initialize particles.js with black and white particles
   particlesJS('particles-js', {
     particles: {
       number: { value: 80, density: { enable: true, value_area: 800 } },
@@ -126,7 +123,6 @@
     retina_detect: true
   });
 
-  // URL encode values for query parameters
   function encodeParam(param) {
     return encodeURIComponent(param);
   }
