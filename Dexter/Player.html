@@ -30,13 +30,32 @@
     z-index: 10;
     background: #000;
     color: #fff;
-    padding: 1rem;
+    padding: 1rem 1rem 1rem 4rem;
     font-size: 1.5rem;
     font-weight: bold;
     text-align: center;
     user-select: none;
     border-bottom: 1px solid #fff;
     box-sizing: border-box;
+  }
+  #backButton {
+    position: fixed;
+    left: 1rem;
+    top: 1rem;
+    z-index: 11;
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+    font-size: 1rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 5px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  #backButton:hover {
+    background-color: #fff;
+    color: #000;
   }
   main {
     position: fixed;
@@ -60,6 +79,7 @@
     color: #fff;
     font-size: 1.2rem;
     padding: 1rem;
+    text-align: center;
   }
 </style>
 <title>Video Player</title>
@@ -67,6 +87,7 @@
 <body>
 <div id="particles-js"></div>
 <header id="episodeTitle">Loading...</header>
+<button id="backButton" type="button" aria-label="Go back">← Back</button>
 <main id="playerContainer">
   Loading video...
 </main>
@@ -98,7 +119,6 @@
     retina_detect: true
   });
 
-  // Helper to get URL parameter by name
   function getQueryParam(param) {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(param);
@@ -109,8 +129,13 @@
 
   const episodeTitle = document.getElementById('episodeTitle');
   const playerContainer = document.getElementById('playerContainer');
+  const backButton = document.getElementById('backButton');
 
   episodeTitle.textContent = decodeURIComponent(episodeName);
+
+  backButton.addEventListener('click', () => {
+    window.location.href = 'https://user-name123115.github.io';
+  });
 
   if (!videoLink) {
     playerContainer.innerHTML = '<div class="error">No video link provided. Please go back and select a show.</div>';
@@ -125,7 +150,6 @@
     video.style.objectFit = 'contain';
     video.style.background = 'transparent';
 
-    // Clear any existing content
     playerContainer.innerHTML = '';
     playerContainer.appendChild(video);
   }
