@@ -5,31 +5,54 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Simple Show List</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #fff;
-    color: #000;
+  html, body {
     margin: 0;
     padding: 0;
+    height: 100%;
     background: #000;
     color: #fff;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+  }
+  #particles-js {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    top: 0;
+    left: 0;
+    background: #000;
+    filter: grayscale(100%);
   }
   header {
+    position: fixed;
+    width: 100%;
+    z-index: 10;
     background: #000;
+    color: #fff;
     padding: 1rem;
     font-size: 1.5rem;
     font-weight: bold;
-    border-bottom: 1px solid #fff;
     text-align: center;
+    user-select: none;
+    border-bottom: 1px solid #fff;
+    box-sizing: border-box;
   }
   main {
+    position: fixed;
+    top: 56px; /* height of header */
+    bottom: 0;
+    width: 100%;
+    overflow-y: auto;
+    z-index: 5;
     padding: 1rem;
-    max-width: 800px;
-    margin: auto;
+    box-sizing: border-box;
   }
   .show-list {
     list-style: none;
     padding: 0;
+    margin: 0 auto;
+    max-width: 800px;
   }
   .show-item {
     background: #111;
@@ -50,14 +73,22 @@
     text-decoration: underline;
   }
   footer {
-    text-align: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
     color: #666;
-    padding: 1rem;
+    padding: 0.5rem;
     font-size: 0.9rem;
+    background: #000;
+    text-align: center;
+    border-top: 1px solid #444;
+    box-sizing: border-box;
+    z-index: 10;
   }
 </style>
 </head>
 <body>
+<div id="particles-js"></div>
 <header>My Show List</header>
 <main>
   <ul id="showList" class="show-list">
@@ -66,7 +97,35 @@
 </main>
 <footer>Shows updated from JSON</footer>
 
+<!-- Load particles.js from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script>
+  // Initialize particles.js with black and white particles
+  particlesJS('particles-js', {
+    particles: {
+      number: { value: 80, density: { enable: true, value_area: 800 } },
+      color: { value: '#ffffff' },
+      shape: { type: 'circle' },
+      opacity: { value: 0.2, random: false },
+      size: { value: 3, random: true },
+      line_linked: { enable: true, distance: 150, color: '#ffffff', opacity: 0.1, width: 1 },
+      move: { enable: true, speed: 2, direction: 'none', random: true, straight: false, out_mode: 'out', bounce: false }
+    },
+    interactivity: {
+      detect_on: 'canvas',
+      events: {
+        onhover: { enable: true, mode: 'grab' },
+        onclick: { enable: true, mode: 'push' },
+        resize: true
+      },
+      modes: {
+        grab: { distance: 140, line_linked: { opacity: 0.3 } },
+        push: { particles_nb: 4 }
+      }
+    },
+    retina_detect: true
+  });
+
   // URL encode values for query parameters
   function encodeParam(param) {
     return encodeURIComponent(param);
@@ -90,13 +149,11 @@
 
       showListEl.innerHTML = '';
 
-      // Assuming data structure: { "Dexter": "videoLink1", "Crocodile": "videoLink2" }
       for (const [showName, videoLink] of Object.entries(data)) {
         const li = document.createElement('li');
         li.className = 'show-item';
 
         const a = document.createElement('a');
-        // Link to Player.html with video and episode name as query params
         a.href = `Player.html?video=${encodeParam(videoLink)}&episode=${encodeParam(showName)}`;
         a.textContent = showName;
         a.className = 'show-link';
