@@ -7,12 +7,10 @@
 <style>
   body {
     font-family: Arial, sans-serif;
-    background: #fff;
-    color: #000;
-    margin: 0;
-    padding: 0;
     background: #000;
     color: #fff;
+    margin: 0;
+    padding: 0;
   }
   header {
     background: #000;
@@ -45,6 +43,7 @@
     color: #fff;
     text-decoration: none;
     font-size: 1.2rem;
+    cursor: pointer;
   }
   .show-link:hover {
     text-decoration: underline;
@@ -67,11 +66,6 @@
 <footer>Shows updated from JSON</footer>
 
 <script>
-  // URL encode values for query parameters
-  function encodeParam(param) {
-    return encodeURIComponent(param);
-  }
-
   async function loadShows() {
     const url = 'https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/main/Dexter/Updatelist.json';
     const showListEl = document.getElementById('showList');
@@ -90,16 +84,21 @@
 
       showListEl.innerHTML = '';
 
-      // Assuming data structure: { "Dexter": "videoLink1", "Crocodile": "videoLink2" }
       for (const [showName, videoLink] of Object.entries(data)) {
         const li = document.createElement('li');
         li.className = 'show-item';
 
         const a = document.createElement('a');
-        // Link to Player.html with video and episode name as query params
-        a.href = `Player.html?video=${encodeParam(videoLink)}&episode=${encodeParam(showName)}`;
+        a.href = 'Player.html'; // no query params
         a.textContent = showName;
         a.className = 'show-link';
+
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          sessionStorage.setItem('videoLink', videoLink);
+          sessionStorage.setItem('episodeName', showName);
+          window.location.href = 'Player.html';
+        });
 
         li.appendChild(a);
         showListEl.appendChild(li);
