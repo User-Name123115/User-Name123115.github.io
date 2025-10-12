@@ -135,13 +135,7 @@
       if (!response.ok) {
         throw new Error(`Failed to fetch show list: HTTP ${response.status}`);
       }
-      const text = await response.text();
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        throw new Error('Invalid JSON format in fetched data');
-      }
+      const data = await response.json();
 
       showListEl.innerHTML = '';
 
@@ -150,7 +144,7 @@
         li.className = 'show-item';
 
         const a = document.createElement('a');
-        a.href = `Player.html?video=${encodeParam(videoLink)}&episode=${encodeParam(showName)}`;
+        a.href = `player.html?video=${encodeParam(videoLink)}&episode=${encodeParam(showName)}`;
         a.textContent = showName;
         a.className = 'show-link';
 
