@@ -1,10 +1,10 @@
 {
   "S1": {
-    "Dexter E1": "https://example.com/dexter",
-    "Crocodile E2": "https://example.com/crocodile"
+    "Dexter": "https://example.com/s1/dexter.mp4",
+    "Crocodile": "https://example.com/s1/crocodile.mp4"
   },
   "S2": {
-    "Episode 1": "url3",
-    "Episode 2": "url4"
+    "Test Episode": "https://example.com/s2/test.mp4",
+    "Another Episode": "https://example.com/s2/another.mp4"
   }
 }
