@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Video Player</title>
 <style>
-  /* Black and white color scheme */
-  body, html {
+  html, body {
     margin: 0;
     padding: 0;
     height: 100%;
@@ -41,7 +40,7 @@
   }
   main {
     position: fixed;
-    top: 56px; /* header height + padding */
+    top: 56px; /* header height */
     bottom: 0;
     width: 100%;
     display: flex;
@@ -54,7 +53,7 @@
     width: 100vw;
     height: calc(100vh - 56px);
     object-fit: contain;
-    background: black;
+    background: transparent;
     outline: none;
   }
   .error {
@@ -70,92 +69,45 @@
   Loading video...
 </main>
 
+<!-- Load particles.js from CDN -->
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script>
   // Initialize particles.js with black and white particles
   particlesJS('particles-js', {
-    "particles": {
-      "number": {
-        "value": 80,
-        "density": {
-          "enable": true,
-          "value_area": 800
-        }
+    particles: {
+      number: { value: 80, density: { enable: true, value_area: 800 } },
+      color: { value: '#ffffff' },
+      shape: { type: 'circle' },
+      opacity: { value: 0.2, random: false },
+      size: { value: 3, random: true },
+      line_linked: { enable: true, distance: 150, color: '#ffffff', opacity: 0.1, width: 1 },
+      move: { enable: true, speed: 2, direction: 'none', random: true, straight: false, out_mode: 'out', bounce: false }
+    },
+    interactivity: {
+      detect_on: 'canvas',
+      events: {
+        onhover: { enable: true, mode: 'grab' },
+        onclick: { enable: true, mode: 'push' },
+        resize: true
       },
-      "color": {
-        "value": "#ffffff"
-      },
-      "shape": {
-        "type": "circle"
-      },
-      "opacity": {
-        "value": 0.2,
-        "random": false
-      },
-      "size": {
-        "value": 3,
-        "random": true
-      },
-      "line_linked": {
-        "enable": true,
-        "distance": 150,
-        "color": "#ffffff",
-        "opacity": 0.1,
-        "width": 1
-      },
-      "move": {
-        "enable": true,
-        "speed": 2,
-        "direction": "none",
-        "random": true,
-        "straight": false,
-        "out_mode": "out",
-        "bounce": false
+      modes: {
+        grab: { distance: 140, line_linked: { opacity: 0.3 } },
+        push: { particles_nb: 4 }
       }
     },
-    "interactivity": {
-      "detect_on": "canvas",
-      "events": {
-        "onhover": {
-          "enable": true,
-          "mode": "grab"
-        },
-        "onclick": {
-          "enable": true,
-          "mode": "push"
-        },
-        "resize": true
-      },
-      "modes": {
-        "grab": {
-          "distance": 140,
-          "line_linked": {
-            "opacity": 0.3
-          }
-        },
-        "push": {
-          "particles_nb": 4
-        }
-      }
-    },
-    "retina_detect": true
+    retina_detect: true
   });
-
-  // Get URL params
-  function getParam(param) {
-    const params = new URLSearchParams(window.location.search);
-    return params.get(param);
-  }
 
   const playerContainer = document.getElementById('playerContainer');
   const episodeTitle = document.getElementById('episodeTitle');
-  const videoLink = getParam('video');
-  const episodeName = getParam('episode') || 'Video Player';
+
+  const videoLink = sessionStorage.getItem('videoLink');
+  const episodeName = sessionStorage.getItem('episodeName') || 'Video Player';
 
   episodeTitle.textContent = episodeName;
 
   if (!videoLink) {
-    playerContainer.innerHTML = '<div class="error">No video link provided.</div>';
+    playerContainer.innerHTML = '<div class="error">No video link provided. Please go back and select a show.</div>';
   } else {
     const video = document.createElement('video');
     video.src = videoLink;
@@ -165,10 +117,14 @@
     video.style.width = '100vw';
     video.style.height = 'calc(100vh - 56px)';
     video.style.objectFit = 'contain';
-    video.style.background = 'black';
+    video.style.background = 'transparent';
 
     playerContainer.innerHTML = '';
     playerContainer.appendChild(video);
+
+    // Clear session storage so refresh won't show video without going through index page again
+    sessionStorage.removeItem('videoLink');
+    sessionStorage.removeItem('episodeName');
   }
 </script>
 </body>
