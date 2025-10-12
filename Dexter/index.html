@@ -49,6 +49,13 @@
   .arrow.open {
     transform: rotate(90deg);
   }
+  .error-message {
+    max-width: 800px;
+    margin: 2rem auto;
+    font-size: 1.2rem;
+    color: #f66;
+    text-align: center;
+  }
   footer {
     position: fixed; bottom: 0; width: 100%; color: #666; padding: 0.5rem; font-size: 0.9rem; background: #000;
     text-align: center; border-top: 1px solid #444; box-sizing: border-box; z-index: 10;
@@ -146,22 +153,21 @@
 
       mainContent.innerHTML = '';
 
+      const isNested = Object.values(data).every(value => typeof value === 'object' && value !== null);
 
-      const isNested = Object.values(data).some(value => typeof value === 'object' && value !== null);
+      if (!isNested) {
+        mainContent.innerHTML = '<div class="error-message">Error: JSON structure must contain seasons with episodes. No seasons found.</div>';
+        return;
+      }
 
-      if (isNested) {
-        for (const [season, episodes] of Object.entries(data)) {
-          if (typeof episodes === 'object' && episodes !== null) {
-            const seasonEl = createSeasonElement(season, episodes);
-            mainContent.appendChild(seasonEl);
-          }
+      for (const [season, episodes] of Object.entries(data)) {
+        if (typeof episodes === 'object' && episodes !== null) {
+          const seasonEl = createSeasonElement(season, episodes);
+          mainContent.appendChild(seasonEl);
         }
-      } else {
-        const seasonEl = createSeasonElement('All Episodes', data);
-        mainContent.appendChild(seasonEl);
       }
     } catch (err) {
-      mainContent.textContent = 'Error loading shows: ' + err.message;
+      mainContent.innerHTML = '<div class="error-message">Error loading shows: ' + err.message + '</div>';
     }
   }
 
