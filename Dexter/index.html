@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Simple YouTube-like Show List</title>
+<title>Simple Show List</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -63,8 +63,11 @@
 <footer>Shows updated from JSON</footer>
 
 <script>
+  function encodeVideoLink(link) {
+    return encodeURIComponent(link);
+  }
+
   async function loadShows() {
-    // Corrected raw URL format for GitHub raw content
     const url = 'https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/main/Dexter/Updatelist.json';
     const showListEl = document.getElementById('showList');
     try {
@@ -76,21 +79,18 @@
       let data;
       try {
         data = JSON.parse(text);
-      } catch (parseError) {
+      } catch {
         throw new Error('Invalid JSON format in fetched data');
       }
 
-      // Clear current list
       showListEl.innerHTML = '';
 
-      for (const [showName, showLink] of Object.entries(data)) {
+      for (const [showName, videoLink] of Object.entries(data)) {
         const li = document.createElement('li');
         li.className = 'show-item';
 
         const a = document.createElement('a');
-        a.href = showLink;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
+        a.href = `Player.html?video=${encodeVideoLink(videoLink)}`;
         a.textContent = showName;
         a.className = 'show-link';
 
