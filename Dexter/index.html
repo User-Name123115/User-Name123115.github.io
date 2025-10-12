@@ -2,97 +2,64 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Dexter List</title>
+<title>Dexter</title>
 <style>
   html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    background: #000;
-    color: #fff;
-    font-family: Arial, sans-serif;
-    overflow: hidden;
+    margin: 0; padding: 0; height: 100%; background: #000; color: #fff; font-family: Arial, sans-serif; overflow: hidden;
   }
   #particles-js {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    top: 0;
-    left: 0;
-    background: #000;
-    filter: grayscale(100%);
+    position: fixed; width: 100%; height: 100%; z-index: 0; top: 0; left: 0; background: #000; filter: grayscale(100%);
   }
   header {
-    position: fixed;
-    width: 100%;
-    z-index: 10;
-    background: #000;
-    color: #fff;
-    padding: 1rem;
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-align: center;
-    user-select: none;
-    border-bottom: 1px solid #fff;
-    box-sizing: border-box;
+    position: fixed; width: 100%; z-index: 10; background: #000; color: #fff; padding: 1rem; font-size: 1.5rem; font-weight: bold;
+    text-align: center; user-select: none; border-bottom: 1px solid #fff; box-sizing: border-box;
   }
   main {
-    position: fixed;
-    top: 56px;
-    bottom: 0;
-    width: 100%;
-    overflow-y: auto;
-    z-index: 5;
-    padding: 1rem;
-    box-sizing: border-box;
+    position: fixed; top: 56px; bottom: 0; width: 100%; overflow-y: auto; z-index: 5; padding: 1rem; box-sizing: border-box;
   }
-  .show-list {
-    list-style: none;
-    padding: 0;
-    margin: 0 auto;
-    max-width: 800px;
+  .season {
+    max-width: 800px; margin: 0 auto 1rem auto; border: 1px solid #555; border-radius: 5px; background: #111;
   }
-  .show-item {
-    background: #111;
-    margin: 0.5rem 0;
-    padding: 1rem;
-    border-radius: 5px;
-    transition: background 0.3s;
-  }
-  .show-item:hover {
-    background: #333;
-  }
-  .show-link {
-    color: #fff;
-    text-decoration: none;
+  .season-header {
+    cursor: pointer; padding: 0.75rem 1rem; font-weight: bold; user-select: none; display: flex; justify-content: space-between; align-items: center;
     font-size: 1.2rem;
   }
-  .show-link:hover {
+  .season-header:hover {
+    background: #222;
+  }
+  .episodes {
+    max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+  }
+  .episodes.open {
+    max-height: 1000px;
+  }
+  .episode-item {
+    padding: 0.5rem 1.5rem;
+    border-top: 1px solid #333;
+  }
+  .episode-link {
+    color: #fff; text-decoration: none; font-size: 1rem;
+  }
+  .episode-link:hover {
     text-decoration: underline;
   }
+  .arrow {
+    transition: transform 0.3s ease;
+  }
+  .arrow.open {
+    transform: rotate(90deg);
+  }
   footer {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    color: #666;
-    padding: 0.5rem;
-    font-size: 0.9rem;
-    background: #000;
-    text-align: center;
-    border-top: 1px solid #444;
-    box-sizing: border-box;
-    z-index: 10;
+    position: fixed; bottom: 0; width: 100%; color: #666; padding: 0.5rem; font-size: 0.9rem; background: #000;
+    text-align: center; border-top: 1px solid #444; box-sizing: border-box; z-index: 10;
   }
 </style>
 </head>
 <body>
 <div id="particles-js"></div>
-<header>Dexter List</header>
-<main>
-  <ul id="showList" class="show-list">
-    <li>Loading...</li>
-  </ul>
+<header>Dexter Eps</header>
+<main id="mainContent">
+  Loading...
 </main>
 <footer>updated from a JSON file so i can add more if i need</footer>
 
@@ -123,36 +90,78 @@
     retina_detect: true
   });
 
+  const mainContent = document.getElementById('mainContent');
+
   function encodeParam(param) {
     return encodeURIComponent(param);
   }
 
+  function createSeasonElement(seasonName, episodes) {
+    const container = document.createElement('section');
+    container.classList.add('season');
+
+    const header = document.createElement('div');
+    header.className = 'season-header';
+    header.textContent = seasonName;
+
+    const arrow = document.createElement('span');
+    arrow.textContent = '▶';
+    arrow.className = 'arrow';
+    header.appendChild(arrow);
+
+    const episodesContainer = document.createElement('div');
+    episodesContainer.className = 'episodes';
+
+    for (const [episodeName, videoLink] of Object.entries(episodes)) {
+      const epDiv = document.createElement('div');
+      epDiv.className = 'episode-item';
+
+      const epLink = document.createElement('a');
+      epLink.href = `player.html?video=${encodeParam(videoLink)}&episode=${encodeParam(seasonName + ' - ' + episodeName)}`;
+      epLink.textContent = episodeName;
+      epLink.className = 'episode-link';
+
+      epDiv.appendChild(epLink);
+      episodesContainer.appendChild(epDiv);
+    }
+
+    header.addEventListener('click', () => {
+      const isOpen = episodesContainer.classList.toggle('open');
+      arrow.classList.toggle('open', isOpen);
+    });
+
+    container.appendChild(header);
+    container.appendChild(episodesContainer);
+    return container;
+  }
+
   async function loadShows() {
     const url = 'https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/main/Dexter/Updatelist.json';
-    const showListEl = document.getElementById('showList');
+    mainContent.textContent = 'Loading...';
     try {
       const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch show list: HTTP ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+
       const data = await response.json();
 
-      showListEl.innerHTML = '';
+      mainContent.innerHTML = '';
 
-      for (const [showName, videoLink] of Object.entries(data)) {
-        const li = document.createElement('li');
-        li.className = 'show-item';
 
-        const a = document.createElement('a');
-        a.href = `player.html?video=${encodeParam(videoLink)}&episode=${encodeParam(showName)}`;
-        a.textContent = showName;
-        a.className = 'show-link';
+      const isNested = Object.values(data).some(value => typeof value === 'object' && value !== null);
 
-        li.appendChild(a);
-        showListEl.appendChild(li);
+      if (isNested) {
+        for (const [season, episodes] of Object.entries(data)) {
+          if (typeof episodes === 'object' && episodes !== null) {
+            const seasonEl = createSeasonElement(season, episodes);
+            mainContent.appendChild(seasonEl);
+          }
+        }
+      } else {
+        const seasonEl = createSeasonElement('All Episodes', data);
+        mainContent.appendChild(seasonEl);
       }
-    } catch (error) {
-      showListEl.innerHTML = `<li>Error loading shows: ${error.message}</li>`;
+    } catch (err) {
+      mainContent.textContent = 'Error loading shows: ' + err.message;
     }
   }
 
