@@ -59,8 +59,10 @@
   .error {
     color: #fff;
     font-size: 1.2rem;
+    padding: 1rem;
   }
 </style>
+<title>Video Player</title>
 </head>
 <body>
 <div id="particles-js"></div>
@@ -69,10 +71,8 @@
   Loading video...
 </main>
 
-<!-- Load particles.js from CDN -->
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script>
-  // Initialize particles.js with black and white particles
   particlesJS('particles-js', {
     particles: {
       number: { value: 80, density: { enable: true, value_area: 800 } },
@@ -98,19 +98,25 @@
     retina_detect: true
   });
 
-  const playerContainer = document.getElementById('playerContainer');
+  // Helper to get URL parameter by name
+  function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+  }
+
+  const videoLink = getQueryParam('video');
+  const episodeName = getQueryParam('episode') || 'Video Player';
+
   const episodeTitle = document.getElementById('episodeTitle');
+  const playerContainer = document.getElementById('playerContainer');
 
-  const videoLink = sessionStorage.getItem('videoLink');
-  const episodeName = sessionStorage.getItem('episodeName') || 'Video Player';
-
-  episodeTitle.textContent = episodeName;
+  episodeTitle.textContent = decodeURIComponent(episodeName);
 
   if (!videoLink) {
     playerContainer.innerHTML = '<div class="error">No video link provided. Please go back and select a show.</div>';
   } else {
     const video = document.createElement('video');
-    video.src = videoLink;
+    video.src = decodeURIComponent(videoLink);
     video.controls = true;
     video.autoplay = true;
     video.playsInline = true;
@@ -119,12 +125,9 @@
     video.style.objectFit = 'contain';
     video.style.background = 'transparent';
 
+    // Clear any existing content
     playerContainer.innerHTML = '';
     playerContainer.appendChild(video);
-
-    // Clear session storage so refresh won't show video without going through index page again
-    sessionStorage.removeItem('videoLink');
-    sessionStorage.removeItem('episodeName');
   }
 </script>
 </body>
