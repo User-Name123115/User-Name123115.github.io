@@ -102,6 +102,63 @@
     background-color: #444;
     border-radius: 4px;
   }
+
+  /* Player styles */
+  #playerOverlay {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 56px);
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 20;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+  #playerOverlay.active {
+    display: flex;
+  }
+  #playerTitle {
+    color: #eee;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    max-width: 90vw;
+    word-wrap: break-word;
+  }
+  #playerContainer {
+    width: 90vw;
+    max-width: 960px;
+    height: 80vh;
+    max-height: 540px;
+    background: #000;
+    box-shadow: 0 0 20px rgba(0,0,0,0.9);
+    position: relative;
+  }
+  #playerContainer iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  #playerCloseBtn {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    font-size: 2rem;
+    color: #eee;
+    cursor: pointer;
+    user-select: none;
+    z-index: 30;
+  }
+  #playerCloseBtn:hover {
+    color: #f44336;
+  }
 </style>
 </head>
 <body>
@@ -111,6 +168,13 @@
   Loading...
 </main>
 <footer>updated from a JSON file so i can add more if i need</footer>
+
+<!-- Player overlay -->
+<div id="playerOverlay" role="dialog" aria-modal="true" aria-labelledby="playerTitle">
+  <button id="playerCloseBtn" aria-label="Close player">&times;</button>
+  <h2 id="playerTitle"></h2>
+  <div id="playerContainer"></div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script>
@@ -140,6 +204,10 @@
   });
 
   const mainContent = document.getElementById('mainContent');
+  const playerOverlay = document.getElementById('playerOverlay');
+  const playerTitle = document.getElementById('playerTitle');
+  const playerContainer = document.getElementById('playerContainer');
+  const playerCloseBtn = document.getElementById('playerCloseBtn');
 
   function encodeParam(param) {
     return encodeURIComponent(param);
@@ -165,9 +233,21 @@
       epDiv.className = 'episode-item';
 
       const epLink = document.createElement('a');
-      epLink.href = `Player.html?video=${encodeParam(videoLink)}&episode=${encodeParam(seasonName + ' - ' + episodeName)}`;
+      epLink.href = '#';
       epLink.textContent = episodeName;
       epLink.className = 'episode-link';
+      epLink.setAttribute('tabindex', '0');
+
+      epLink.addEventListener('click', e => {
+        e.preventDefault();
+        openPlayer(videoLink, `${seasonName} - ${episodeName}`);
+      });
+      epLink.addEventListener('keypress', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openPlayer(videoLink, `${seasonName} - ${episodeName}`);
+        }
+      });
 
       epDiv.appendChild(epLink);
       episodesContainer.appendChild(epDiv);
@@ -183,6 +263,46 @@
     return container;
   }
 
+  // Extract Google Drive file ID from preview or share URL
+  function extractFileId(driveUrl) {
+    const match = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    return match ? match[1] : null;
+  }
+
+  function openPlayer(videoUrl, episodeTitle) {
+    const fileId = extractFileId(videoUrl);
+    if (!fileId) {
+      alert('Invalid video URL.');
+      return;
+    }
+    playerTitle.textContent = episodeTitle;
+    playerContainer.innerHTML = '';
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+    iframe.allow = "autoplay; encrypted-media";
+    iframe.allowFullscreen = true;
+    playerContainer.appendChild(iframe);
+    playerOverlay.classList.add('active');
+    // Prevent body scroll while player is open
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePlayer() {
+    playerOverlay.classList.remove('active');
+    playerContainer.innerHTML = '';
+    playerTitle.textContent = '';
+    document.body.style.overflow = '';
+  }
+
+  playerCloseBtn.addEventListener('click', closePlayer);
+
+  playerOverlay.addEventListener('click', e => {
+    if (e.target === playerOverlay) {
+      closePlayer();
+    }
+  });
+
+  // Load JSON and build UI
   async function loadShows() {
     const url = 'https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/main/Dexter/Updatelist.json';
     mainContent.textContent = 'Loading...';
