@@ -1,62 +1,98 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dexter</title>
+  <title>Video Player</title>
   <style>
     body {
       margin: 0;
       background-color: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       color: white;
       font-family: Arial, sans-serif;
+      display: flex;
       flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
     }
-    iframe {
+    h1 {
+      margin: 0 0 15px 0;
+      font-size: 1.5rem;
+      text-align: center;
+      max-width: 90vw;
+      word-wrap: break-word;
+    }
+    #playerContainer {
       width: 90vw;
       height: 80vh;
+      max-width: 960px;
+      max-height: 540px;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
       border: none;
     }
     .error {
+      margin-top: 20px;
       color: #f44336;
       font-size: 1.2rem;
-      margin-top: 20px;
-      max-width: 90vw;
       text-align: center;
+      max-width: 90vw;
+      word-wrap: break-word;
     }
   </style>
 </head>
 <body>
+  <h1 id="episodeTitle"></h1>
   <div id="playerContainer"></div>
   <div id="errorMessage" class="error"></div>
 
   <script>
     function getQueryParam(param) {
       const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(param);
+      const rawValue = urlParams.get(param);
+      if (!rawValue) return null;
+      try {
+        return decodeURIComponent(rawValue);
+      } catch(e) {
+        // If decoding fails, fallback to raw value
+        return rawValue;
+      }
     }
 
     function extractFileId(driveUrl) {
+      // Matches /d/FILE_ID/ pattern in the URL
       const match = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
       return match ? match[1] : null;
     }
 
+    const videoUrl = getQueryParam('video');
+    const episode = getQueryParam('episode');
+    const episodeTitleElem = document.getElementById('episodeTitle');
     const playerContainer = document.getElementById('playerContainer');
     const errorMessage = document.getElementById('errorMessage');
-    const inputUrl = getQueryParam('url');
 
-    if (!inputUrl) {
+    if (!videoUrl) {
       errorMessage.textContent = "Error: No video URL provided.";
     } else {
-      const fileId = extractFileId(inputUrl);
+      const fileId = extractFileId(videoUrl);
       if (!fileId) {
-        errorMessage.textContent = "Error: Invalid Google Drive URL.";
+        errorMessage.textContent = "Error: Invalid Google Drive video URL.";
       } else {
+        // Show episode title if available
+        if (episode) {
+          episodeTitleElem.textContent = episode;
+        } else {
+          episodeTitleElem.textContent = "Untitled Episode";
+        }
+
+        // Create iframe embed URL
         const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
 
+        // Create and append iframe
         const iframe = document.createElement('iframe');
         iframe.src = embedUrl;
         iframe.allow = "autoplay; encrypted-media";
