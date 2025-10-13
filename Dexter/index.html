@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Dexter</title>
+<title>Dexter - Sign In</title>
 <style>
   html, body {
     margin: 0; padding: 0; height: 100%; background: #121212; color: #eee; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden;
@@ -19,6 +20,98 @@
     position: fixed; top: 56px; bottom: 0; width: 100%; overflow-y: auto; z-index: 5; padding: 1rem 0; box-sizing: border-box;
     display: flex; flex-direction: column; align-items: center;
   }
+  form {
+    background: #222;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    padding: 2rem 2.5rem;
+    width: 320px;
+    box-sizing: border-box;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+  }
+  h2 {
+    margin: 0 0 1.5rem 0;
+    font-weight: 700;
+    font-size: 1.8rem;
+    text-align: center;
+    color: #eee;
+    user-select: none;
+  }
+  input[type="text"],
+  input[type="password"] {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 1.2rem;
+    border: none;
+    border-radius: 4px;
+    background: #333;
+    color: #eee;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease;
+  }
+  input[type="text"]:focus,
+  input[type="password"]:focus {
+    outline: none;
+    background-color: #444;
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+    background: #1877f2;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  button:hover, button:focus {
+    background: #145dbf;
+    outline: none;
+  }
+  .contact-info {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #aaa;
+    text-align: center;
+    user-select: none;
+  }
+  .contact-info a {
+    color: #5599ff;
+    text-decoration: none;
+  }
+  .contact-info a:hover, .contact-info a:focus {
+    text-decoration: underline;
+  }
+  .message {
+    margin-top: 1rem;
+    font-weight: 600;
+    text-align: center;
+    user-select: none;
+  }
+  .message.success {
+    color: #4caf50;
+  }
+  .message.error {
+    color: #f44336;
+  }
+  main::-webkit-scrollbar {
+    width: 8px;
+  }
+  main::-webkit-scrollbar-track {
+    background: #121212;
+  }
+  main::-webkit-scrollbar-thumb {
+    background-color: #444;
+    border-radius: 4px;
+  }
+
+  /* Season and episodes styles */
   .season {
     width: 90%; max-width: 700px; margin: 0.5rem 0;
     background: #222;
@@ -92,16 +185,6 @@
     text-align: center; border-top: 1px solid #222; box-sizing: border-box; z-index: 10;
     font-style: italic;
   }
-  main::-webkit-scrollbar {
-    width: 8px;
-  }
-  main::-webkit-scrollbar-track {
-    background: #121212;
-  }
-  main::-webkit-scrollbar-thumb {
-    background-color: #444;
-    border-radius: 4px;
-  }
 
   /* Player styles */
   #playerOverlay {
@@ -163,9 +246,18 @@
 </head>
 <body>
 <div id="particles-js"></div>
-<header>Dexter</header>
+<header id="headerTitle">Dexter - Sign In</header>
 <main id="mainContent">
-  Loading...
+  <form id="sign-in-form" aria-label="Sign in form" autocomplete="off" novalidate>
+    <h2>Sign In</h2>
+    <input type="text" id="signin-username" name="username" placeholder="Username" autocomplete="username" required aria-required="true" />
+    <input type="password" id="signin-password" name="password" placeholder="Password" autocomplete="current-password" required aria-required="true" />
+    <button type="submit" aria-label="Sign in">Sign In</button>
+    <div class="message" id="message" role="alert" aria-live="polite"></div>
+    <div class="contact-info" aria-live="polite">
+      To get an account, contact: <a href="mailto:244977@antigoschools.org">244977@antigoschools.org</a>
+    </div>
+  </form>
 </main>
 <footer>updated from a JSON file so i can add more if i need</footer>
 
@@ -203,15 +295,40 @@
     retina_detect: true
   });
 
+  const headerTitle = document.getElementById('headerTitle');
   const mainContent = document.getElementById('mainContent');
   const playerOverlay = document.getElementById('playerOverlay');
   const playerTitle = document.getElementById('playerTitle');
   const playerContainer = document.getElementById('playerContainer');
   const playerCloseBtn = document.getElementById('playerCloseBtn');
 
-  function encodeParam(param) {
-    return encodeURIComponent(param);
+  const signInForm = document.getElementById('sign-in-form');
+  const messageEl = document.getElementById('message');
+
+  // Load credentials from the given URL
+  async function loadCredentials() {
+    try {
+      const response = await fetch('https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/Dexter/usertest.json');
+      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+      const text = await response.text();
+      const lines = text.split('\n').filter(line => line.trim());
+      const creds = {};
+      lines.forEach(line => {
+        const match = line.match(/"([^"]+)"\s+"([^"]+)"/);
+        if (match) {
+          creds[match[1]] = match[2];
+        }
+      });
+      return creds;
+    } catch (err) {
+      messageEl.textContent = 'Failed to load credentials.';
+      messageEl.className = 'message error';
+      throw err;
+    }
   }
+
+  // JSON URL for Dexter episodes list
+  const episodesJsonUrl = 'https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/main/Dexter/Updatelist.json';
 
   function createSeasonElement(seasonName, episodes) {
     const container = document.createElement('section');
@@ -283,7 +400,6 @@
     iframe.allowFullscreen = true;
     playerContainer.appendChild(iframe);
     playerOverlay.classList.add('active');
-    // Prevent body scroll while player is open
     document.body.style.overflow = 'hidden';
   }
 
@@ -302,12 +418,10 @@
     }
   });
 
-  // Load JSON and build UI
   async function loadShows() {
-    const url = 'https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/main/Dexter/Updatelist.json';
     mainContent.textContent = 'Loading...';
     try {
-      const response = await fetch(url);
+      const response = await fetch(episodesJsonUrl);
       if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
 
       const data = await response.json();
@@ -332,7 +446,49 @@
     }
   }
 
-  loadShows();
+  let credentials = null;
+
+  // Initialize
+  (async () => {
+    try {
+      credentials = await loadCredentials();
+    } catch {
+      // Credentials failed to load, message shown by loadCredentials()
+    }
+  })();
+
+  signInForm.addEventListener('submit', e => {
+    e.preventDefault();
+    messageEl.textContent = '';
+    messageEl.className = 'message';
+
+    if (!credentials) {
+      messageEl.textContent = 'Credentials not loaded yet, please try again in a moment.';
+      messageEl.classList.add('error');
+      return;
+    }
+
+    const username = signInForm.elements['username'].value.trim();
+    const password = signInForm.elements['password'].value;
+
+    if (!username || !password) {
+      messageEl.textContent = 'Please enter username and password.';
+      messageEl.classList.add('error');
+      return;
+    }
+
+    if (credentials[username] && credentials[username] === password) {
+      messageEl.textContent = `Signed in successfully as ${username}.`;
+      messageEl.classList.add('success');
+      // Switch UI to show seasons and episodes list
+      headerTitle.textContent = 'Dexter';
+      signInForm.style.display = 'none';
+      loadShows();
+    } else {
+      messageEl.textContent = 'Invalid username or password.';
+      messageEl.classList.add('error');
+    }
+  });
 </script>
 </body>
 </html>
