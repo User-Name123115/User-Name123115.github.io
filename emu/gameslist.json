@@ -8,5 +8,10 @@
     "name": "zombie-alien-parasites",
     "swf": "https://example.com/games/sonic.swf",
     "icon": "https://example.com/icons/sonic.png"
+  },
+  {
+    "name": "zombie-alien-parasites",
+    "swf": "https://example.com/games/sonic.swf",
+    "icon": "https://example.com/icons/sonic.png"
   }
 ]
