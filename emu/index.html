@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Flash Player — Emulator</title>
+
+  <!-- Favicon will be set by script as well -->
+  <link rel="icon" href="" id="site-favicon">
+
+  <style>
+    :root{
+      --bg:#0a0a0a;
+      --panel:#0a0a0a;
+      --muted:#6b7280;
+      --white: #ffffff;
+      --glass: rgba(255,255,255,0.03);
+      --border: rgba(255,255,255,0.10);
+      --accent: rgba(255,255,255,0.08);
+      --sidebar-width: 320px;
+      --ui-padding: 16px;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      background:#000;
+      color:var(--white);
+    }
+
+    .app{
+      position:relative;
+      min-height:100vh;
+      overflow:hidden;
+      background: #000;
+    }
+
+    /* Hover trigger area */
+    .hover-edge{
+      position:absolute;
+      left:0;
+      top:0;
+      width:6px;
+      height:100%;
+      z-index:40;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: absolute;
+      top:0;
+      left:0;
+      height:100%;
+      width:var(--sidebar-width);
+      transform: translateX(-100%);
+      transition: transform 280ms cubic-bezier(.2,.9,.2,1);
+      z-index:50;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+      background: linear-gradient(#050505, #0b0b0b);
+      border-right: 1px solid var(--border);
+      display:flex;
+      flex-direction:column;
+    }
+    .sidebar.visible{ transform: translateX(0); }
+
+    .sidebar-header{
+      padding:var(--ui-padding);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      background: #000;
+    }
+
+    .brand{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    .brand .logo{
+      width:40px;height:40px;border-radius:8px;overflow:hidden;background:#fff;display:flex;align-items:center;justify-content:center;
+    }
+    .brand .logo img{ width:100%;height:100%;object-fit:cover;display:block; }
+
+    .brand h1{ margin:0;font-size:16px;line-height:1;font-weight:700;}
+    .brand p{ margin:0;font-size:12px;color:var(--muted);}
+
+    .upload-btn{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      background:#fff;
+      color:#000;
+      border-radius:8px;
+      padding:8px 10px;
+      border:0;
+      cursor:pointer;
+      font-weight:600;
+    }
+
+    .search-wrap{
+      position:relative;
+      margin-top:4px;
+    }
+    .search-wrap input{
+      width:100%;
+      padding:10px 12px 10px 36px;
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:8px;
+      color:var(--white);
+      outline:none;
+    }
+    .search-wrap .icon{
+      position:absolute;
+      left:10px;
+      top:50%;
+      transform:translateY(-50%);
+      opacity:0.6;
+    }
+
+    /* Games list */
+    .games-list{
+      padding:12px;
+      overflow:auto;
+      flex:1;
+    }
+    .game-item{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding:10px;
+      margin-bottom:8px;
+      border-radius:8px;
+      cursor:pointer;
+      transition: all 150ms ease;
+      background: rgba(255,255,255,0.01);
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+    .game-item:hover{ background: rgba(255,255,255,0.03); }
+    .game-item.active{
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .game-thumb{ width:48px;height:48px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#000;border:1px solid rgba(255,255,255,0.06);}
+    .game-thumb img{ width:100%;height:100%;object-fit:cover;display:block; }
+    .game-info{ min-width:0; overflow:hidden; }
+    .game-info .title{ font-size:14px; font-weight:600; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
+    .game-info .sub{ font-size:12px; color:var(--muted); white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
+
+    /* Top bar and main */
+    .main{
+      position:relative;
+      z-index:10;
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+    .topbar{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 24px;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      background: #000;
+    }
+    .controls{ display:flex; gap:8px; align-items:center; }
+    .icon-btn{
+      width:36px;height:36px;border-radius:8px;border:0;background:transparent;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
+    }
+    .icon-btn:hover{ background: rgba(255,255,255,0.03); color:var(--white); }
+
+    .player-area{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px;
+      background:var(--panel);
+    }
+
+    .placeholder{
+      text-align:center;
+      max-width:780px;
+    }
+    .placeholder h1{ font-size:44px;margin:0 0 12px 0; }
+    .placeholder p{ color:var(--muted); font-size:18px; margin:0 0 18px 0; }
+
+    .stats{ display:flex; gap:12px; justify-content:center; margin-top:10px; }
+    .stat{ background:rgba(255,255,255,0.03); padding:10px 16px; border-radius:12px; border:1px solid rgba(255,255,255,0.06); min-width:120px; text-align:center; }
+    .stat p{ margin:0; color:var(--muted); font-size:13px; }
+    .stat strong{ display:block; font-size:20px; margin-top:6px; }
+
+    /* Player container */
+    .player-frame{
+      width:100%;
+      height:100%;
+      max-width:1240px;
+      max-height:calc(100vh - 120px);
+      border-radius:12px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.08);
+      background:#000;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+    }
+    .centered{
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    /* custom scrollbar */
+    .games-list::-webkit-scrollbar{ width:8px; }
+    .games-list::-webkit-scrollbar-track{ background: rgba(0,0,0,0.25); border-radius:6px; }
+    .games-list::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.12); border-radius:6px; }
+    .games-list::-webkit-scrollbar-thumb:hover{ background: rgba(255,255,255,0.18); }
+
+    @media (max-width:900px){
+      .sidebar{ width:280px; }
+      .player-frame{ max-width:100%; max-height:calc(100vh - 100px); }
+      .placeholder h1{ font-size:32px; }
+    }
+
+    /* simple fade */
+    .fade-in{ animation:fadeIn .25s ease both; }
+    @keyframes fadeIn { from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:none; } }
+
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <!-- Hover area -->
+    <div class="hover-edge" id="hoverEdge" aria-hidden="true"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar" aria-label="Games sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="logo">
+            <img id="siteIconImg" src="https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/emu/icons/icon.png" alt="Flash Player Icon">
+          </div>
+          <div>
+            <h1>Flash Player</h1>
+            <p>Emulator</p>
+          </div>
+        </div>
+
+        <div>
+          <input id="fileInput" type="file" accept=".swf" style="display:none;">
+          <button id="uploadBtn" class="upload-btn" title="Upload local SWF file">
+            <!-- Upload icon (simple) -->
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="opacity:0.85" xmlns="http://www.w3.org/2000/svg"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10l5-5 5 5" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 5v14" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Upload Local File
+          </button>
+        </div>
+
+        <div class="search-wrap">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" style="opacity:0.8" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2"/></svg>
+          <input id="searchInput" type="search" placeholder="Search games..." aria-label="Search games">
+        </div>
+      </div>
+
+      <div class="games-list" id="gamesList" role="list">
+        <!-- Games will populate here -->
+        <div id="gamesLoading" class="centered" style="height:100%;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+            <div style="width:48px;height:48px;border-radius:50%;border:4px solid rgba(255,255,255,0.08);border-top-color:#fff; animation:spin 1s linear infinite;"></div>
+            <div style="color:var(--muted)">Loading games...</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <div class="main">
+      <div class="topbar">
+        <div style="display:flex;gap:12px;align-items:center;">
+          <button id="homeBtn" class="icon-btn" title="Home">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 11.5L12 4l9 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+
+          <div id="selectedInfo" style="display:flex;gap:12px;align-items:center;">
+            <!-- Filled dynamically -->
+            <div id="selectedSummary" style="display:none;align-items:center;gap:12px;">
+              <div style="width:40px;height:40px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);">
+                <img id="selectedThumb" src="" alt="" style="width:100%;height:100%;object-fit:cover">
+              </div>
+              <div>
+                <div id="selectedName" style="font-weight:600"></div>
+                <div id="selectedSub" style="font-size:12px;color:var(--muted)"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button id="muteBtn" class="icon-btn" title="Toggle mute" style="display:none;">
+            <svg id="muteIcon" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M11 5v14l-6-6H2V11h3l6-6z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button id="fullscreenBtn" class="icon-btn" title="Fullscreen" style="display:none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M8 3H5a2 2 0 0 0-2 2v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 3h3a2 2 0 0 1 2 2v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 21H5a2 2 0 0 1-2-2v-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 21h3a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="player-area">
+        <div id="placeholder" class="placeholder fade-in" style="display:block;">
+          <h1>Flash Game Emulator</h1>
+          <p>Hover on the left edge to browse games, upload a local file, or select a game to start playing.</p>
+          <div class="stats">
+            <div class="stat"><p>Games Available</p><strong id="gamesCount">0</strong></div>
+            <div class="stat"><p>Powered By</p><strong>Ruffle</strong></div>
+          </div>
+        </div>
+
+        <div id="playerWrapper" class="player-frame" style="display:none;">
+          <div id="playerContainer" style="width:100%;height:100%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      // Constants
+      const DEFAULT_ICON = "https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/emu/icons/images.png";
+      const SITE_ICON = "https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/emu/icons/icon.png";
+      const GAMES_JSON = "https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/emu/gameslist.json";
+
+      // Elements
+      const hoverEdge = document.getElementById('hoverEdge');
+      const sidebar = document.getElementById('sidebar');
+      const fileInput = document.getElementById('fileInput');
+      const uploadBtn = document.getElementById('uploadBtn');
+      const searchInput = document.getElementById('searchInput');
+      const gamesListEl = document.getElementById('gamesList');
+      const gamesLoading = document.getElementById('gamesLoading');
+      const gamesCountEl = document.getElementById('gamesCount');
+      const placeholder = document.getElementById('placeholder');
+      const playerWrapper = document.getElementById('playerWrapper');
+      const playerContainer = document.getElementById('playerContainer');
+      const selectedSummary = document.getElementById('selectedSummary');
+      const selectedThumb = document.getElementById('selectedThumb');
+      const selectedName = document.getElementById('selectedName');
+      const selectedSub = document.getElementById('selectedSub');
+      const muteBtn = document.getElementById('muteBtn');
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+      const muteIcon = document.getElementById('muteIcon');
+      const siteIconImg = document.getElementById('siteIconImg');
+
+      // State
+      let games = [];
+      let filteredGames = [];
+      let selectedGame = null;
+      let isSidebarVisible = false;
+      let sidebarTimeout = null;
+      let ruffleLoaded = false;
+      let rufflePlayerInstance = null; // the active Ruffle player element (DOM)
+      let isMuted = false;
+
+      // Set favicon
+      function setFavicon(url){
+        const link = document.getElementById('site-favicon') || document.createElement('link');
+        link.id = 'site-favicon';
+        link.rel = 'icon';
+        link.type = 'image/png';
+        link.href = url;
+        document.head.appendChild(link);
+      }
+      setFavicon(SITE_ICON);
+
+      // Load Ruffle
+      function loadRuffle(){
+        return new Promise((resolve, reject) => {
+          if (window.RufflePlayer) { ruffleLoaded = true; resolve(); return; }
+          const s = document.createElement('script');
+          s.src = 'https://unpkg.com/@ruffle-rs/ruffle';
+          s.crossOrigin = 'anonymous';
+          s.onload = () => { console.log('Ruffle loaded'); ruffleLoaded = true; resolve(); };
+          s.onerror = (e) => { console.error('Failed to load Ruffle', e); reject(e); };
+          document.head.appendChild(s);
+        });
+      }
+
+      // Fetch games list
+      function fetchGames(){
+        gamesLoading.style.display = 'flex';
+        fetch(GAMES_JSON).then(res=>{
+          if(!res.ok) throw new Error('Network response was not ok');
+          return res.json();
+        }).then(data=>{
+          games = Array.isArray(data) ? data : [];
+          filteredGames = games.slice();
+          renderGames();
+        }).catch(err=>{
+          console.error('Error loading games:', err);
+          games = [];
+          filteredGames = [];
+          renderGames(); // will show "no games"
+        }).finally(()=>{
+          gamesLoading.style.display = 'none';
+          gamesCountEl.textContent = games.length;
+        });
+      }
+
+      // Render games list
+      function renderGames(){
+        gamesListEl.innerHTML = ''; // clear
+        if(filteredGames.length === 0){
+          const noWrap = document.createElement('div');
+          noWrap.style.padding = '36px 12px';
+          noWrap.style.textAlign = 'center';
+          noWrap.style.color = 'var(--muted)';
+          noWrap.textContent = 'No games found';
+          gamesListEl.appendChild(noWrap);
+          return;
+        }
+
+        filteredGames.forEach((game, idx) => {
+          const btn = document.createElement('button');
+          btn.className = 'game-item fade-in';
+          if (selectedGame && selectedGame.name === game.name) btn.classList.add('active');
+          btn.type = 'button';
+
+          const thumb = document.createElement('div');
+          thumb.className = 'game-thumb';
+          const img = document.createElement('img');
+          img.src = game.icon || DEFAULT_ICON;
+          img.alt = game.name || `Game ${idx+1}`;
+          img.onerror = () => { img.src = DEFAULT_ICON; };
+          thumb.appendChild(img);
+
+          const info = document.createElement('div');
+          info.className = 'game-info';
+          const title = document.createElement('div');
+          title.className = 'title';
+          title.textContent = game.name || `Game ${idx+1}`;
+          const sub = document.createElement('div');
+          sub.className = 'sub';
+          sub.textContent = game.isLocal ? 'Local File' : (game.swf || game.url || '');
+          info.appendChild(title);
+          info.appendChild(sub);
+
+          btn.appendChild(thumb);
+          btn.appendChild(info);
+
+          btn.addEventListener('click', () => {
+            selectGame(game);
+            // close sidebar after selection for UX
+            hideSidebar();
+          });
+
+          gamesListEl.appendChild(btn);
+        });
+      }
+
+      // Show/hide sidebar
+      function showSidebar(){
+        if(sidebarTimeout) { clearTimeout(sidebarTimeout); sidebarTimeout = null; }
+        if(!isSidebarVisible){
+          isSidebarVisible = true;
+          sidebar.classList.add('visible');
+        }
+      }
+      function hideSidebar(){
+        if(sidebarTimeout) clearTimeout(sidebarTimeout);
+        sidebarTimeout = setTimeout(()=>{
+          isSidebarVisible = false;
+          sidebar.classList.remove('visible');
+        }, 300);
+      }
+
+      hoverEdge.addEventListener('mouseenter', showSidebar);
+      sidebar.addEventListener('mouseenter', showSidebar);
+      sidebar.addEventListener('mouseleave', hideSidebar);
+
+      // Upload handling
+      uploadBtn.addEventListener('click', ()=> fileInput.click());
+      fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if(!file) return;
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const localGame = {
+            name: file.name.replace(/\.swf$/i, ''),
+            localFile: new Uint8Array(arrayBuffer),
+            icon: DEFAULT_ICON,
+            isLocal: true
+          };
+          // select and start
+          selectGame(localGame);
+          hideSidebar();
+        } catch(err){
+          console.error('Error reading file:', err);
+          alert('Failed to read the file. See console for details.');
+        } finally {
+          fileInput.value = '';
+        }
+      });
+
+      // Search handling
+      searchInput.addEventListener('input', (e)=>{
+        const q = (e.target.value || '').trim().toLowerCase();
+        filteredGames = games.filter(g => (g.name || '').toLowerCase().includes(q));
+        renderGames();
+      });
+
+      // Select game
+      async function selectGame(game){
+        selectedGame = game;
+        // update UI header
+        selectedSummary.style.display = 'flex';
+        selectedThumb.src = game.icon || DEFAULT_ICON;
+        selectedThumb.onerror = () => selectedThumb.src = DEFAULT_ICON;
+        selectedName.textContent = game.name || 'Flash Game';
+        selectedSub.textContent = game.isLocal ? 'Local File' : (game.swf || game.url || 'Online Game');
+        muteBtn.style.display = 'inline-flex';
+        fullscreenBtn.style.display = 'inline-flex';
+        placeholder.style.display = 'none';
+        playerWrapper.style.display = 'block';
+        // clear previous player
+        playerContainer.innerHTML = '';
+
+        // ensure ruffle is loaded
+        try {
+          if(!ruffleLoaded){
+            await loadRuffle();
+          }
+          // create player
+          const ruffle = window.RufflePlayer.newest();
+          const player = ruffle.createPlayer();
+          player.style.width = '100%';
+          player.style.height = '100%';
+          playerContainer.appendChild(player);
+
+          if (game.isLocal && game.localFile) {
+            // load from Uint8Array
+            player.load({ data: game.localFile });
+          } else {
+            // try .swf or url property
+            const source = game.swf || game.url;
+            if (source) {
+              player.load(source);
+            } else {
+              // fallback: attempt to load name as path
+              player.load(game.name);
+            }
+          }
+
+          rufflePlayerInstance = player;
+
+          // if previously muted, apply
+          applyMute(isMuted);
+
+        } catch(err){
+          console.error('Error initializing Ruffle player:', err);
+          playerContainer.innerHTML = '<div style="color:#fff;padding:20px;text-align:center">Failed to load the game. See console for details.</div>';
+        }
+
+        // re-render list to highlight active
+        renderGames();
+      }
+
+      // Mute toggle
+      function applyMute(muted){
+        isMuted = !!muted;
+        // Try known Ruffle API forms; API may not expose setMuted — try setting the emscripten AudioContext gain less reliable
+        try {
+          if (rufflePlayerInstance && typeof rufflePlayerInstance.setMuted === 'function') {
+            rufflePlayerInstance.setMuted(isMuted);
+          } else if (rufflePlayerInstance && rufflePlayerInstance.shadowRoot) {
+            // look for audio element inside shadow if present (not guaranteed)
+            const aud = rufflePlayerInstance.shadowRoot.querySelector('audio');
+            if (aud) { aud.muted = isMuted; }
+          } else {
+            // No reliable API; nothing to do
+          }
+        } catch(e){
+          console.warn('Mute apply error:', e);
+        }
+
+        // Update icon visuals
+        if (isMuted) {
+          muteIcon.innerHTML = '<path d="M16 7.82A6 6 0 0 1 12 21v-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>';
+        } else {
+          muteIcon.innerHTML = '<path d="M11 5v14l-6-6H2V11h3l6-6z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>';
+        }
+      }
+
+      muteBtn.addEventListener('click', () => {
+        applyMute(!isMuted);
+      });
+
+      // Fullscreen
+      fullscreenBtn.addEventListener('click', () => {
+        const el = playerContainer.firstElementChild || playerContainer;
+        if (!document.fullscreenElement) {
+          if (el.requestFullscreen) el.requestFullscreen();
+          else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        } else {
+          if (document.exitFullscreen) document.exitFullscreen();
+          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        }
+      });
+
+      // Home button clears selection
+      document.getElementById('homeBtn').addEventListener('click', () => {
+        selectedGame = null;
+        rufflePlayerInstance = null;
+        playerContainer.innerHTML = '';
+        placeholder.style.display = 'block';
+        playerWrapper.style.display = 'none';
+        selectedSummary.style.display = 'none';
+        renderGames();
+      });
+
+      // Initialize
+      (function init(){
+        // Set the site icon image src; if fails hide
+        siteIconImg.onerror = () => { siteIconImg.style.display = 'none'; };
+
+        // Load ruffle early (but selection will await it)
+        loadRuffle().catch(()=>{/* handled later */});
+
+        // Fetch games
+        fetchGames();
+
+        // Hide loading indicator if fetch is slow - already handled
+
+        // Accessibility: allow tab to open sidebar by focusing edge
+        hoverEdge.addEventListener('focus', showSidebar);
+        hoverEdge.setAttribute('tabindex','0');
+
+      })();
+
+      // simple spin animation style injection
+      const styleSpin = document.createElement('style');
+      styleSpin.textContent = "@keyframes spin{to{transform:rotate(360deg)}}";
+      document.head.appendChild(styleSpin);
+
+    })();
+  </script>
+</body>
+</html>
