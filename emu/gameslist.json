@@ -10,8 +10,28 @@
     "icon": "https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/emu/icons/Xenos.jpeg"
   },
   {
-    "name": " ",
-    "swf": "https://example.com/games/sonic.swf",
-    "icon": "https://example.com/icons/sonic.png"
+    "name": "Warfare 1944",
+    "swf": "https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/emu/games/warfare1944.swf",
+    "icon": "https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/emu/icons/warfare1944.jpeg"
+  },
+  {
+    "name": "Warp",
+    "swf": "https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/emu/games/warp.swf",
+    "icon": "https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/emu/icons/warp.webp"
+  },
+  {
+    "name": "xtreme cliff diving",
+    "swf": "https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/emu/games/xtremecliffdiving.swf",
+    "icon": "https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/emu/icons/xtremecliffdiving.jpeg"
+  },
+  {
+    "name": "year of the snake",
+    "swf": "https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/emu/games/yearofthesnake.swf",
+    "icon": "https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/emu/icons/xtremecliffdiving.jpeg"
+  },
+  {
+    "name": "yuriuss house of spooks",
+    "swf": "https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/emu/games/yuriusshouseofspooks.swf",
+    "icon": "https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/emu/icons/yuriusshouseofspooks.jpeg"
   }
 ]
