@@ -1,108 +1,54 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <title>Phone Python Server Client</title>
+  <title>Auto Localhost Client</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width:720px; margin:20px auto; }
-    label { display:block; margin-top:12px; font-weight:600; }
-    input[type="text"] { width:100%; padding:8px; box-sizing:border-box; margin-top:6px; }
-    button { margin-top:12px; padding:8px 12px; }
-    pre { background:#f6f6f6; padding:10px; white-space:pre-wrap; word-break:break-word; }
-    .hint { color:#666; font-size:0.9em; margin-top:6px; }
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; }
+    textarea, button { width: 100%; padding: 10px; margin-top: 10px; font-size: 1em; }
+    pre { background: #eee; padding: 10px; white-space: pre-wrap; word-wrap: break-word; margin-top: 15px; }
   </style>
 </head>
 <body>
-  <h2>Send to Phone Python Server</h2>
+  <h2>Auto Localhost Phone Server Client</h2>
+  <label for="textInput">Enter text to send:</label>
+  <textarea id="textInput" rows="4" placeholder="Type something..."></textarea>
+  <button id="sendBtn">Send to Server (localhost:5000)</button>
 
-  <div>
-    <label>Phone IP (leave empty to use this device)</label>
-    <input id="phoneIp" placeholder="Example: 192.168.43.1" />
-    <div class="hint">If you're opening this page from the phone's browser, leave blank. If from another device connected to the phone hotspot, enter the phone IP printed by server.py.</div>
-  </div>
-
-  <div>
-    <label>Port</label>
-    <input id="phonePort" placeholder="5000" value="5000" />
-  </div>
-
-  <div>
-    <label>Text to send</label>
-    <input id="textInput" placeholder="Type something" />
-  </div>
-
-  <button id="sendBtn">Send to /process</button>
-  <button id="checkBtn">Check server /status</button>
-
-  <h3>Response</h3>
-  <pre id="result">No request yet.</pre>
+  <h3>Response:</h3>
+  <pre id="response">No requests yet.</pre>
 
   <script>
-    const phoneIpInput = document.getElementById('phoneIp');
-    const phonePortInput = document.getElementById('phonePort');
+    const sendBtn = document.getElementById('sendBtn');
     const textInput = document.getElementById('textInput');
-    const resultEl = document.getElementById('result');
+    const responseEl = document.getElementById('response');
 
-    // If opened on the phone itself, default to localhost
-    function defaultHost() {
-      // When opened from phone browser, use same origin
-      if (location.hostname && location.hostname !== "") return location.hostname;
-      return '';
-    }
-
-    if (!phoneIpInput.value) phoneIpInput.value = defaultHost();
-
-    function buildBaseUrl() {
-      const ip = (phoneIpInput.value || '').trim();
-      const port = (phonePortInput.value || '5000').trim();
-      if (!ip) {
-        // if empty, use same origin
-        return `${location.protocol}//${location.hostname}:${port}`;
+    sendBtn.onclick = async () => {
+      const text = textInput.value.trim();
+      if (!text) {
+        alert('Please enter some text');
+        return;
       }
-      return `http://${ip}:${port}`;
-    }
 
-    async function postProcess() {
-      const base = buildBaseUrl();
-      const url = `${base}/process`;
-      const body = { text: textInput.value || '' };
-      resultEl.textContent = 'Sending...';
+      const url = 'http://localhost:5000/process';
+
+      responseEl.textContent = 'Sending...';
+
       try {
         const res = await fetch(url, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(body)
+          body: JSON.stringify({text})
         });
         if (!res.ok) {
-          resultEl.textContent = `Network error: ${res.status} ${res.statusText}`;
+          responseEl.textContent = `Error: ${res.status} ${res.statusText}`;
           return;
         }
         const data = await res.json();
-        resultEl.textContent = JSON.stringify(data, null, 2);
-      } catch (err) {
-        resultEl.textContent = 'Fetch error: ' + err.message + '\n\nTip: Ensure your device is connected to the phone hotspot and use the phone IP printed by server.py.';
+        responseEl.textContent = JSON.stringify(data, null, 2);
+      } catch (e) {
+        responseEl.textContent = 'Fetch error: ' + e.message;
       }
-    }
-
-    async function checkStatus() {
-      const base = buildBaseUrl();
-      const url = `${base}/status`;
-      resultEl.textContent = 'Checking...';
-      try {
-        const res = await fetch(url);
-        if (!res.ok) {
-          resultEl.textContent = `Network error: ${res.status} ${res.statusText}`;
-          return;
-        }
-        const data = await res.json();
-        resultEl.textContent = JSON.stringify(data, null, 2);
-      } catch (err) {
-        resultEl.textContent = 'Fetch error: ' + err.message + '\n\nTip: Ensure your device is connected to the phone hotspot and use the phone IP printed by server.py.';
-      }
-    }
-
-    document.getElementById('sendBtn').addEventListener('click', postProcess);
-    document.getElementById('checkBtn').addEventListener('click', checkStatus);
+    };
   </script>
 </body>
 </html>
