@@ -2,93 +2,107 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Connect to Phone Python Server</title>
+  <title>Phone Python Server Client</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 640px; margin: 20px auto; }
-    label, input { display:block; margin-bottom: 8px; }
-    input[type="text"] { width: 100%; padding: 8px; box-sizing: border-box; }
-    button { padding: 8px 12px; }
-    pre { background:#f6f6f6; padding: 10px; }
+    body { font-family: Arial, sans-serif; max-width:720px; margin:20px auto; }
+    label { display:block; margin-top:12px; font-weight:600; }
+    input[type="text"] { width:100%; padding:8px; box-sizing:border-box; margin-top:6px; }
+    button { margin-top:12px; padding:8px 12px; }
+    pre { background:#f6f6f6; padding:10px; white-space:pre-wrap; word-break:break-word; }
+    .hint { color:#666; font-size:0.9em; margin-top:6px; }
   </style>
 </head>
 <body>
   <h2>Send to Phone Python Server</h2>
 
-  <label>Phone IP (example: 192.168.43.1)</label>
-  <input id="phoneIp" placeholder="Enter phone IP (e.g. 192.168.43.1)" />
+  <div>
+    <label>Phone IP (leave empty to use this device)</label>
+    <input id="phoneIp" placeholder="Example: 192.168.43.1" />
+    <div class="hint">If you're opening this page from the phone's browser, leave blank. If from another device connected to the phone hotspot, enter the phone IP printed by server.py.</div>
+  </div>
 
-  <label>Port (default 5000)</label>
-  <input id="phonePort" placeholder="5000" />
+  <div>
+    <label>Port</label>
+    <input id="phonePort" placeholder="5000" value="5000" />
+  </div>
 
-  <label>Text to send</label>
-  <input id="textInput" placeholder="Type something" />
+  <div>
+    <label>Text to send</label>
+    <input id="textInput" placeholder="Type something" />
+  </div>
 
-  <button id="sendBtn">Send</button>
-  <button id="tryDetectBtn">Try Detect Phone Info From Previous</button>
+  <button id="sendBtn">Send to /process</button>
+  <button id="checkBtn">Check server /status</button>
 
   <h3>Response</h3>
   <pre id="result">No request yet.</pre>
 
   <script>
-    // Use saved values from localStorage if available
     const phoneIpInput = document.getElementById('phoneIp');
     const phonePortInput = document.getElementById('phonePort');
     const textInput = document.getElementById('textInput');
     const resultEl = document.getElementById('result');
 
-    // Prefill from local storage
-    phoneIpInput.value = localStorage.getItem('phoneIp') || '';
-    phonePortInput.value = localStorage.getItem('phonePort') || '5000';
-
-    function buildUrl() {
-      const ip = (phoneIpInput.value || '').trim();
-      const port = (phonePortInput.value || '5000').trim();
-      if (!ip) throw new Error('Phone IP is required');
-      return `http://${ip}:${port}/process`;
+    // If opened on the phone itself, default to localhost
+    function defaultHost() {
+      // When opened from phone browser, use same origin
+      if (location.hostname && location.hostname !== "") return location.hostname;
+      return '';
     }
 
-    async function send() {
-      let url;
-      try {
-        url = buildUrl();
-      } catch (err) {
-        resultEl.textContent = 'Error: ' + err.message;
-        return;
-      }
-      // save for convenience
-      localStorage.setItem('phoneIp', phoneIpInput.value.trim());
-      localStorage.setItem('phonePort', phonePortInput.value.trim());
+    if (!phoneIpInput.value) phoneIpInput.value = defaultHost();
 
+    function buildBaseUrl() {
+      const ip = (phoneIpInput.value || '').trim();
+      const port = (phonePortInput.value || '5000').trim();
+      if (!ip) {
+        // if empty, use same origin
+        return `${location.protocol}//${location.hostname}:${port}`;
+      }
+      return `http://${ip}:${port}`;
+    }
+
+    async function postProcess() {
+      const base = buildBaseUrl();
+      const url = `${base}/process`;
       const body = { text: textInput.value || '' };
       resultEl.textContent = 'Sending...';
       try {
         const res = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {'Content-Type': 'application/json'},
           body: JSON.stringify(body)
         });
         if (!res.ok) {
-          resultEl.textContent = 'Network error: ' + res.status + ' ' + res.statusText;
+          resultEl.textContent = `Network error: ${res.status} ${res.statusText}`;
           return;
         }
         const data = await res.json();
         resultEl.textContent = JSON.stringify(data, null, 2);
       } catch (err) {
-        resultEl.textContent = 'Fetch error: ' + err.message + '\n\nTip: Ensure your device is connected to the phone hotspot and use the phone IP printed by the server.';
+        resultEl.textContent = 'Fetch error: ' + err.message + '\n\nTip: Ensure your device is connected to the phone hotspot and use the phone IP printed by server.py.';
       }
     }
 
-    document.getElementById('sendBtn').addEventListener('click', send);
-    document.getElementById('tryDetectBtn').addEventListener('click', () => {
-      // Helper: If localStorage stored values exist, notify user. No reliable way to auto-detect the phone IP from client.
-      const ip = localStorage.getItem('phoneIp') || '';
-      const port = localStorage.getItem('phonePort') || '5000';
-      if (ip) {
-        resultEl.textContent = `Using saved IP ${ip} and port ${port}. If this is the phone IP printed by the server, press Send.`;
-      } else {
-        resultEl.textContent = 'No saved phone IP. Enter the phone IP printed by server.py (run in Pydroid) and press Send.';
+    async function checkStatus() {
+      const base = buildBaseUrl();
+      const url = `${base}/status`;
+      resultEl.textContent = 'Checking...';
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          resultEl.textContent = `Network error: ${res.status} ${res.statusText}`;
+          return;
+        }
+        const data = await res.json();
+        resultEl.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        resultEl.textContent = 'Fetch error: ' + err.message + '\n\nTip: Ensure your device is connected to the phone hotspot and use the phone IP printed by server.py.';
       }
-    });
+    }
+
+    document.getElementById('sendBtn').addEventListener('click', postProcess);
+    document.getElementById('checkBtn').addEventListener('click', checkStatus);
   </script>
 </body>
 </html>
