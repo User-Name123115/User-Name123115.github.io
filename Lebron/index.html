@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LeBron Bounce Madness</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: linear-gradient(45deg, #ff0080, #00fff7, #fffb00, #ff0080);
+      background-size: 400% 400%;
+      animation: bgShift 15s ease infinite;
+      font-family: 'Permanent Marker', cursive, sans-serif;
+      user-select: none;
+      cursor: none;
+      filter: contrast(1.3) saturate(2) brightness(1.2);
+    }
+
+    @keyframes bgShift {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    #container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      filter: drop-shadow(0 0 15px #ff00ff);
+      z-index: 10;
+    }
+
+    .bounce {
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      pointer-events: none;
+      user-select: none;
+      filter:
+        drop-shadow(0 0 15px #ff00ff)
+        drop-shadow(0 0 25px #00fff7)
+        drop-shadow(0 0 35px #fffb00);
+      animation: spinBounce 5s linear infinite;
+      mix-blend-mode: normal; /* Changed to normal for better visibility */
+      transform-origin: center center;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #ff0080 0%, #660066 100%);
+      box-shadow:
+        0 0 20px #ff00ff,
+        0 0 40px #00fff7,
+        0 0 60px #fffb00;
+      overflow: hidden;
+      border: 4px solid #ff00ff;
+      transition: filter 0.3s ease;
+    }
+
+    .bounce:hover {
+      filter: drop-shadow(0 0 30px #ff00ff)
+              drop-shadow(0 0 45px #00fff7)
+              drop-shadow(0 0 60px #fffb00)
+              saturate(3)
+              brightness(1.4);
+      z-index: 1000;
+      animation-play-state: paused;
+      transform: scale(1.2) rotate(10deg);
+      cursor: pointer;
+    }
+
+    .bounce img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      mix-blend-mode: normal; /* Changed to normal for clarity */
+      filter:
+        saturate(1.5)
+        brightness(1.1)
+        contrast(1.2)
+        drop-shadow(0 0 5px #000000);
+      border-radius: 50%;
+      transition: filter 0.3s ease;
+    }
+
+    .bounce:hover img {
+      filter:
+        saturate(2)
+        brightness(1.5)
+        contrast(1.4)
+        drop-shadow(0 0 12px #ff00ff);
+    }
+
+    .bounce:nth-child(odd) {
+      animation-duration: 4s;
+      filter: drop-shadow(0 0 15px #00ffff) drop-shadow(0 0 30px #ff00ff);
+    }
+
+    .bounce:nth-child(even) {
+      animation-duration: 7s;
+      filter: drop-shadow(0 0 15px #ff00ff) drop-shadow(0 0 30px #00ffff);
+    }
+
+    @keyframes spinBounce {
+      0% {
+        transform: rotate(0deg) scale(1);
+      }
+      50% {
+        transform: rotate(180deg) scale(1.3);
+      }
+      100% {
+        transform: rotate(360deg) scale(1);
+      }
+    }
+
+    #title {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 5rem;
+      color: #00fff7;
+      letter-spacing: 0.3em;
+      text-shadow:
+        0 0 15px #ff00ff,
+        0 0 30px #00fff7,
+        0 0 45px #fffb00;
+      mix-blend-mode: screen;
+      user-select: none;
+      pointer-events: none;
+      animation: flicker 3s infinite;
+      font-weight: 900;
+      font-family: 'Permanent Marker', cursive, sans-serif;
+      text-transform: uppercase;
+      z-index: 9999;
+    }
+
+    @keyframes flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        opacity: 1;
+      }
+      20%, 22%, 24%, 55% {
+        opacity: 0.4;
+      }
+    }
+
+    #noise {
+      pointer-events: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: repeating-conic-gradient(
+        from 0deg,
+        rgba(255,255,255,0.05) 0deg 1deg,
+        transparent 1deg 2deg
+      );
+      animation: noiseMove 0.15s steps(8) infinite;
+      mix-blend-mode: screen;
+      z-index: 9998;
+    }
+
+    @keyframes noiseMove {
+      0%, 100% { background-position: 0 0; }
+      50% { background-position: 100px 100px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="title">L E B R O N</div>
+  <div id="noise"></div>
+
+  <audio src="https://cdn.pixabay.com/download/audio/2022/03/20/audio_b7c13d6c5a.mp3?filename=cyberpunk-retro-wave-ambient-1120.mp3" autoplay loop></audio>
+
+  <div id="container">
+    <div class="bounce" style="top: 10vh; left: 5vw;"><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png" alt="LeBron" /></div>
+    <div class="bounce" style="top: 30vh; left: 25vw;"><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png" alt="LeBron" /></div>
+    <div class="bounce" style="top: 50vh; left: 50vw;"><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png" alt="LeBron" /></div>
+    <div class="bounce" style="top: 70vh; left: 70vw;"><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png" alt="LeBron" /></div>
+    <div class="bounce" style="top: 20vh; left: 80vw;"><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png" alt="LeBron" /></div>
+  </div>
+
+  <script>
+    const container = document.getElementById('container');
+    const bounces = Array.from(document.getElementsByClassName('bounce'));
+    const size = 160;
+
+    let containerWidth = window.innerWidth;
+    let containerHeight = window.innerHeight;
+
+    const movers = bounces.map(() => ({
+      x: Math.random() * (containerWidth - size),
+      y: Math.random() * (containerHeight - size),
+      vx: (Math.random() * 8 + 4) * (Math.random() < 0.5 ? 1 : -1),
+      vy: (Math.random() * 8 + 4) * (Math.random() < 0.5 ? 1 : -1),
+    }));
+
+    function move() {
+      for (let i = 0; i < bounces.length; i++) {
+        let m = movers[i];
+        m.x += m.vx;
+        m.y += m.vy;
+
+        if (m.x <= 0) {
+          m.x = 0;
+          m.vx = -m.vx * 1.2;
+        } else if (m.x >= containerWidth - size) {
+          m.x = containerWidth - size;
+          m.vx = -m.vx * 1.2;
+        }
+        if (m.y <= 0) {
+          m.y = 0;
+          m.vy = -m.vy * 1.2;
+        } else if (m.y >= containerHeight - size) {
+          m.y = containerHeight - size;
+          m.vy = -m.vy * 1.2;
+        }
+
+        m.vx = Math.max(Math.min(m.vx, 15), -15);
+        m.vy = Math.max(Math.min(m.vy, 15), -15);
+
+        bounces[i].style.left = m.x + 'px';
+        bounces[i].style.top = m.y + 'px';
+      }
+      requestAnimationFrame(move);
+    }
+
+    move();
+
+    window.addEventListener('resize', () => {
+      containerWidth = window.innerWidth;
+      containerHeight = window.innerHeight;
+      movers.forEach(m => {
+        m.x = Math.min(m.x, containerWidth - size);
+        m.y = Math.min(m.y, containerHeight - size);
+      });
+    });
+  </script>
+</body>
+</html>
