@@ -1,1 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Home</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0; height: 100%; background: black; color: white; font-family: system-ui, sans-serif;
+      overflow-x: hidden;
+      background: radial-gradient(circle at center, #111111, #000000);
+      position: relative;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 40px 0;
+      overflow-y: auto;
+      position: relative;
+      z-index: 1;
+    }
+    #app {
+      max-width: 960px;
+      width: 100%;
+      padding: 32px;
+      background: rgba(10,10,10,0.85);
+      border-radius: 16px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.9);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+      user-select: none;
+      box-sizing: border-box;
+      position: relative;
+      z-index: 2;
+    }
+    h1 {
+      width: 100%;
+      margin: 0 0 16px 0;
+      font-weight: 700;
+      font-size: 2.5rem;
+      text-align: center;
+      letter-spacing: 1.2px;
+      color: white;
+    }
+    p.description {
+      width: 100%;
+      margin: 0 0 32px 0;
+      font-size: 1.125rem;
+      color: white;
+      text-align: center;
+    }
+    .site-card {
+      background: rgba(255 255 255 / 0.05);
+      border: 1px solid rgba(255 255 255 / 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: background 0.3s, border-color 0.3s;
+      box-shadow: 0 0 10px rgba(255,255,255,0.05);
+      width: 280px;
+      color: white;
+      border: none;
+      background-color: transparent;
+      text-align: left;
+    }
+    .site-card:hover {
+      background: rgba(255 255 255 / 0.12);
+      border-color: rgba(255 255 255 / 0.3);
+      box-shadow: 0 0 20px rgba(255,255,255,0.15);
+    }
+    .site-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: black;
+      border: 1px solid rgba(255,255,255,0.15);
+      flex-shrink: 0;
+    }
+    .site-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .site-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      color: white;
+      white-space: normal;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    .site-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 0;
+      white-space: normal;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    .site-desc {
+      margin: 4px 0 0 0;
+      font-size: 0.9rem;
+      color: #ddd;
+      line-height: 1.3;
+      min-height: auto;
+      overflow: visible;
+      text-overflow: clip;
+      display: block;
+      white-space: normal;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    #snow-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="snow-canvas"></canvas>
 
+  <div id="app" role="main">
+    <h1>My Webs</h1>
+    <p class="description">Click on any site below</p>
+    <button class="site-card" role="listitem" aria-label="Go to Emulator" onclick="window.location.href='https://plutana-eng-emu.base44.app/'">
+      <div class="site-icon" aria-hidden="true">
+        <img src="https://raw.githubusercontent.com/User-Name123115/User-Name123115.github.io/refs/heads/main/emu/icons/Screenshot%202025-10-17%209.06.43%20AM.png" alt="" />
+      </div>
+      <div class="site-info">
+        <h2 class="site-name">Emulator</h2>
+        <p class="site-desc">a flash game emulator</p>
+      </div>
+    </button>
+
+    <button class="site-card" role="listitem" aria-label="Go to YouTube" onclick="window.location.href='https://www.youtube.com'">
+      <div class="site-icon" aria-hidden="true">
+        <img src="https://www.youtube.com/favicon.ico" alt="" />
+      </div>
+      <div class="site-info">
+        <h2 class="site-name">YouTube</h2>
+        <p class="site-desc">Watch and share videos across the globe.</p>
+      </div>
+    </button>
+
+    <button class="site-card" role="listitem" aria-label="Go to Wikipedia" onclick="window.location.href='https://www.wikipedia.org'">
+      <div class="site-icon" aria-hidden="true">
+        <img src="https://www.wikipedia.org/static/favicon/wikipedia.ico" alt="" />
+      </div>
+      <div class="site-info">
+        <h2 class="site-name">Wikipedia</h2>
+        <p class="site-desc">The free encyclopedia that anyone can edit.</p>
+      </div>
+    </button>
+
+    <button class="site-card" role="listitem" aria-label="Go to GitHub" onclick="window.location.href='https://github.com'">
+      <div class="site-icon" aria-hidden="true">
+        <img src="https://github.githubassets.com/favicons/favicon.svg" alt="" />
+      </div>
+      <div class="site-info">
+        <h2 class="site-name">GitHub</h2>
+        <p class="site-desc">Host and review code, manage projects, and build software together.</p>
+      </div>
+    </button>
+
+    <button class="site-card" role="listitem" aria-label="Go to Twitter" onclick="window.location.href='https://twitter.com'">
+      <div class="site-icon" aria-hidden="true">
+        <img src="https://abs.twimg.com/favicons/twitter.ico" alt="" />
+      </div>
+      <div class="site-info">
+        <h2 class="site-name">Twitter</h2>
+        <p class="site-desc">Join the conversation and see what’s happening around the world.</p>
+      </div>
+    </button>
+
+    <button class="site-card" role="listitem" aria-label="Go to Reddit" onclick="window.location.href='https://www.reddit.com'">
+      <div class="site-icon" aria-hidden="true">
+        <img src="https://www.redditstatic.com/desktop2x/img/favicon/favicon-32x32.png" alt="" />
+      </div>
+      <div class="site-info">
+        <h2 class="site-name">Reddit</h2>
+        <p class="site-desc">The front page of the internet, with communities for everything.</p>
+      </div>
+    </button>
+  </div>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById('snow-canvas');
+      const ctx = canvas.getContext('2d');
+      let width, height;
+      let snowflakes = [];
+
+      function resizeCanvas() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+      }
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      function createSnowflakes() {
+        snowflakes = [];
+        const count = 150;
+        for (let i = 0; i < count; i++) {
+          snowflakes.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            radius: Math.random() * 3 + 1,
+            speedY: Math.random() * 1 + 0.5,
+            speedX: Math.random() * 0.5 - 0.25,
+            opacity: Math.random() * 0.5 + 0.3,
+          });
+        }
+      }
+      createSnowflakes();
+
+      function updateSnowflakes() {
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.beginPath();
+        for (const flake of snowflakes) {
+          flake.y += flake.speedY;
+          flake.x += flake.speedX;
+          if (flake.y > height) {
+            flake.y = -flake.radius;
+            flake.x = Math.random() * width;
+          }
+          if (flake.x > width) {
+            flake.x = 0;
+          }
+          if (flake.x < 0) {
+            flake.x = width;
+          }
+          ctx.moveTo(flake.x, flake.y);
+          ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+        }
+        ctx.fill();
+        requestAnimationFrame(updateSnowflakes);
+      }
+      updateSnowflakes();
+    })();
+  </script>
+</body>
+</html>
